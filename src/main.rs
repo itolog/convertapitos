@@ -2,7 +2,7 @@
 use salvo::prelude::*;
 //  IMAGE
 mod image;
-use crate::image::image_routes::image_routes;
+use crate::image::image_controller::image_routes;
 
 #[tokio::main]
 async fn main() {
