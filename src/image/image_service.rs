@@ -1,6 +1,6 @@
 use salvo::handler;
 
 #[handler]
-pub fn hello() -> &'static str {
+pub fn convert_image() -> &'static str {
     "HEllo"
 }

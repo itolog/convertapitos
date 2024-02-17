@@ -1,8 +1,8 @@
-use salvo::{Router};
-use crate::image::image_service::hello;
+use crate::image::convert_image;
+use salvo::Router;
 
-pub fn image_routes() -> Router {
+pub fn image_controller() -> Router {
     Router::new()
         .path("image")
-        .get(hello)
+        .push(Router::with_path("convert").post(convert_image))
 }

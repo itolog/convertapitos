@@ -3,6 +3,9 @@
 dev:
 	cargo watch -x run
 
+clippy:
+	cargo clippy
+
 build:
 	cargo build
 
