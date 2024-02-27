@@ -1,4 +1,4 @@
-use crate::image::convert_image;
+use crate::image::image_service::convert_image;
 use salvo::Router;
 
 pub fn image_controller() -> Router {
