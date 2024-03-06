@@ -1,8 +1,6 @@
 use crate::image::image_service::convert_image;
-use salvo::Router;
+use ntex::web;
 
-pub fn image_controller() -> Router {
-    Router::new()
-        .path("image")
-        .push(Router::with_path("convert").post(convert_image))
+pub fn image_controller(cfg: &mut web::ServiceConfig) {
+    cfg.service(web::scope("/image").service(convert_image));
 }
