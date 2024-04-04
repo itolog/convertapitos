@@ -1,44 +1,54 @@
+use base64::{engine::general_purpose::STANDARD, Engine as _};
 use image::io::Reader as ImageReader;
 use image::{DynamicImage, ImageFormat};
 use salvo::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::io::Cursor;
-use validator::{Validate, ValidationError};
-
+use validator::Validate;
 extern crate image;
+
+#[derive(Debug, Deserialize, Serialize)]
+enum AsType {
+    Base64,
+    FilePath,
+}
 
 #[derive(Debug, Validate, Deserialize, Serialize)]
 struct MyData {
-    #[validate(required, custom = "validate_role")]
-    role: Option<String>,
+    convert_to: String,
+    image_file: Vec<u8>,
+    as_type: AsType,
 }
 
-fn validate_role(role: &str) -> Result<(), ValidationError> {
-    if role == "admin" || role == "user" {
-        Ok(())
-    } else {
-        Err(ValidationError::new("terrible_username"))
-    }
+#[derive(Debug, Serialize)]
+struct ImageResponse {
+    image_base_64: String,
 }
 #[handler]
 pub async fn convert_image(req: &mut Request, res: &mut Response) {
-    let form = req.parse_form::<MyData>().await.unwrap().validate();
+    req.form::<String>("id").await;
+    let (convert_to, image_file) = (
+        req.form::<String>("convert_to")
+            .await
+            .unwrap_or("png".to_string()),
+        req.file("image_file").await,
+    );
 
-    match form {
-        Ok(_) => {
-            let file = req.file("file").await;
-            if let Some(file) = file {
-                let input_image: DynamicImage =
-                    ImageReader::open(file.path()).unwrap().decode().unwrap();
+    if let Some(file) = image_file {
+        let input_image: DynamicImage = ImageReader::open(file.path()).unwrap().decode().unwrap();
 
-                let mut output_buffer = Vec::new();
-                input_image
-                    .write_to(&mut Cursor::new(&mut output_buffer), ImageFormat::Bmp)
-                    .expect("Failed to convert image format");
+        let mut output_buffer = Vec::new();
+        input_image
+            .write_to(&mut Cursor::new(&mut output_buffer), ImageFormat::Bmp)
+            .expect("Failed to convert image format");
 
-                res.write_body(output_buffer).unwrap()
-            }
-        }
-        Err(e) => res.status_code(StatusCode::BAD_REQUEST).render(Json(e)),
-    };
+        let res_base64 = STANDARD.encode(&output_buffer);
+        let image_base_64 = format!(
+            "data:image/{};base64,{}",
+            convert_to.to_lowercase(),
+            res_base64
+        );
+
+        res.render(Json(ImageResponse { image_base_64 }))
+    }
 }
