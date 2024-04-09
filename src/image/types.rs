@@ -10,6 +10,7 @@ pub struct MyData<'a> {
 #[derive(Debug, Deserialize, Serialize)]
 pub struct DataResponse {
     pub image_link: String,
+    pub file_name: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]

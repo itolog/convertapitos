@@ -36,7 +36,10 @@ pub async fn convert_image(req: &mut Request, res: &mut Response) {
             .save_with_format(Path::new(&save_file_path), match_ext(&convert_to))
             .map(|_| {
                 res.render(Json(ImageResponse {
-                    data: Some(DataResponse { image_link }),
+                    data: Some(DataResponse {
+                        file_name: format!("{}.{}", file_name, convert_to),
+                        image_link,
+                    }),
                     error: None,
                 }))
             })
