@@ -11,7 +11,6 @@ extern crate image;
 
 #[handler]
 pub async fn convert_image(req: &mut Request, res: &mut Response) -> AppResult<()> {
-    req.form::<String>("id").await;
     let (convert_to, image_file) = (
         req.form::<String>("convert_to")
             .await
