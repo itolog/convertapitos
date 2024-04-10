@@ -5,6 +5,8 @@ use salvo::prelude::*;
 use salvo::serve_static::StaticDir;
 //  IMAGE
 mod image;
+mod types;
+
 use crate::image::image_controller::image_controller;
 
 #[tokio::main]

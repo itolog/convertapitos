@@ -1,5 +1,6 @@
-use crate::image::types::{DataErr, DataResponse, ImageResponse};
+use crate::image::types::ImageResponse;
 use crate::image::utils::match_ext;
+use crate::types::{AppResponse, AppResult, DataErr};
 use image::imageops::FilterType;
 use image::io::Reader as ImageReader;
 use image::DynamicImage;
@@ -9,7 +10,7 @@ use std::path::Path;
 extern crate image;
 
 #[handler]
-pub async fn convert_image(req: &mut Request, res: &mut Response) {
+pub async fn convert_image(req: &mut Request, res: &mut Response) -> AppResult<()> {
     req.form::<String>("id").await;
     let (convert_to, image_file) = (
         req.form::<String>("convert_to")
@@ -23,33 +24,22 @@ pub async fn convert_image(req: &mut Request, res: &mut Response) {
         let save_file_path = format!("public/upload/{}.{}", file_name, convert_to.to_lowercase());
         let image_link = format!("upload/{}.{}", file_name, convert_to.to_lowercase());
 
-        let mut input_image: DynamicImage = ImageReader::open(Path::new(file.path()))
-            .unwrap()
-            .decode()
-            .unwrap();
+        let mut input_image: DynamicImage = ImageReader::open(Path::new(file.path()))?.decode()?;
 
         if convert_to == "ico" {
             input_image = input_image.resize(256, 256, FilterType::Nearest);
         }
 
-        let _ = input_image
-            .save_with_format(Path::new(&save_file_path), match_ext(&convert_to))
-            .map(|_| {
-                res.render(Json(ImageResponse {
-                    data: Some(DataResponse {
-                        file_name: format!("{}.{}", file_name, convert_to),
-                        image_link,
-                    }),
-                    error: None,
-                }))
-            })
-            .map_err(|e| {
-                res.render(Json(ImageResponse {
-                    data: None,
-                    error: Some(DataErr {
-                        message: format!("{}", e),
-                    }),
-                }))
-            });
+        input_image.save_with_format(Path::new(&save_file_path), match_ext(&convert_to))?;
+
+        res.render(Json(AppResponse::<ImageResponse, Option<DataErr>> {
+            data: Some(ImageResponse {
+                file_name: format!("{}.{}", file_name, convert_to),
+                image_link,
+            }),
+            error: None,
+        }));
     }
+
+    Ok(())
 }
