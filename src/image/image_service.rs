@@ -1,7 +1,7 @@
 use crate::image::types::ImageResponse;
-use crate::image::utils::match_ext;
+use crate::image::utils::{get_save_file_path, get_upload_folder_path, match_ext, PathMode};
 use crate::types::{AppResponse, AppResult, DataErr};
-use chrono::{Datelike, Timelike, Utc};
+
 use image::imageops::FilterType;
 use image::io::Reader as ImageReader;
 use image::DynamicImage;
@@ -10,8 +10,6 @@ use std::path::Path;
 use tokio::fs::create_dir_all;
 
 extern crate image;
-
-const FOLDER_PATH: &str = "public/uploads";
 
 #[handler]
 pub async fn convert_image(req: &mut Request, res: &mut Response) -> AppResult<()> {
@@ -23,32 +21,12 @@ pub async fn convert_image(req: &mut Request, res: &mut Response) -> AppResult<(
     );
 
     if let Some(file) = image_file {
-        let now = Utc::now();
-        let current_folder_name = format!(
-            "{}-{:02}-{:02}-{:02}",
-            now.year(),
-            now.month(),
-            now.day(),
-            now.minute()
-        );
-        let root_folder = format!("{}/{}", FOLDER_PATH, current_folder_name);
+        let upload_folder = get_upload_folder_path(PathMode::Upload);
 
-        create_dir_all(Path::new(&root_folder)).await?;
+        create_dir_all(Path::new(&upload_folder)).await?;
 
         let (file_name, _ext) = file.name().unwrap().split_once('.').unwrap();
-        let save_file_path = format!(
-            "{}/{}.{}",
-            root_folder,
-            file_name,
-            convert_to.to_lowercase()
-        );
-
-        let image_link = format!(
-            "uploads/{}/{}.{}",
-            current_folder_name,
-            file_name,
-            convert_to.to_lowercase()
-        );
+        let (save_file_path, image_link) = get_save_file_path(&convert_to.to_lowercase());
 
         let mut input_image: DynamicImage = ImageReader::open(Path::new(file.path()))?.decode()?;
 
