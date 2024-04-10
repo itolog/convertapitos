@@ -37,7 +37,7 @@ pub fn get_upload_folder_path(mode: PathMode) -> String {
         now.year(),
         now.month(),
         now.day(),
-        now.minute()
+        now.hour()
     );
 
     match mode {
