@@ -1,9 +1,13 @@
+use crate::common::utils::jobs::upload_job;
 use dotenv::dotenv;
 use salvo::cors::Cors;
 use salvo::http::Method;
 use salvo::logging::Logger;
 use salvo::prelude::*;
 use salvo::serve_static::StaticDir;
+
+// COMMON
+mod common;
 //  IMAGE
 mod image;
 mod types;
@@ -18,6 +22,8 @@ async fn main() {
     let local_addr = format!("{}:{}", host, port);
 
     tracing_subscriber::fmt().init();
+
+    upload_job().await.expect("Upload job error");
 
     let cors = Cors::new()
         .allow_origin("*")

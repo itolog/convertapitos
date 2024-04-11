@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::string::FromUtf8Error;
 use thiserror::Error;
 use tokio::io;
+use tokio_cron_scheduler::JobSchedulerError;
 
 //TODO: do not show system errors to the user
 #[derive(Error, Debug)]
@@ -14,6 +15,8 @@ pub enum AppError {
     FromUtf8(#[from] FromUtf8Error),
     #[error("ImageError: `{0}`")]
     ImageError(#[from] ImageError),
+    #[error("JobSchedulerError: `{0}`")]
+    JobSchedulerError(#[from] JobSchedulerError),
 }
 
 #[derive(Debug, Deserialize, Serialize)]
