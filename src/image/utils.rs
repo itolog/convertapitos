@@ -1,4 +1,4 @@
-use chrono::{Datelike, Timelike, Utc};
+use chrono::{Datelike, Local, Timelike};
 use image::ImageFormat;
 
 const UPLOADS_FOLDER_PATH: &str = "public/uploads";
@@ -30,7 +30,7 @@ pub enum PathMode {
 }
 
 pub fn get_upload_folder_path(mode: PathMode) -> String {
-    let now = Utc::now();
+    let now = Local::now();
 
     let current_folder_name = format!(
         "{}-{:02}-{:02}-{:02}",
@@ -47,7 +47,7 @@ pub fn get_upload_folder_path(mode: PathMode) -> String {
 }
 
 pub fn get_save_file_path(ext: &String) -> (String, String) {
-    let now = Utc::now();
+    let now = Local::now();
     let file_name = format!(
         "{:02}-{:02}-{:02}_image.{}",
         now.hour(),

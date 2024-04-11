@@ -1,3 +1,4 @@
+use dotenv::dotenv;
 use salvo::cors::Cors;
 use salvo::http::Method;
 use salvo::logging::Logger;
@@ -11,6 +12,11 @@ use crate::image::image_controller::image_controller;
 
 #[tokio::main]
 async fn main() {
+    dotenv().ok();
+    let host = std::env::var("HOST").unwrap_or("127.0.0.1".to_string());
+    let port = std::env::var("PORT").unwrap_or("5800".to_string());
+    let local_addr = format!("{}:{}", host, port);
+
     tracing_subscriber::fmt().init();
 
     let cors = Cors::new()
@@ -30,6 +36,6 @@ async fn main() {
 
     let service = Service::new(router).hoop(Logger::new()).hoop(cors);
 
-    let acceptor = TcpListener::new("127.0.0.1:5800").bind().await;
+    let acceptor = TcpListener::new(local_addr).bind().await;
     Server::new(acceptor).serve(service).await;
 }
