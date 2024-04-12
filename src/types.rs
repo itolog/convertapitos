@@ -6,7 +6,6 @@ use thiserror::Error;
 use tokio::io;
 use tokio_cron_scheduler::JobSchedulerError;
 
-//TODO: do not show system errors to the user
 #[derive(Error, Debug)]
 pub enum AppError {
     #[error("io: `{0}`")]
@@ -22,25 +21,27 @@ pub enum AppError {
 #[derive(Debug, Deserialize, Serialize)]
 pub struct DataErr {
     pub message: String,
+    pub status: i16,
 }
 
 #[derive(Debug, Serialize)]
 pub struct AppResponse<T, E> {
-    pub data: Option<T>,
-    pub error: Option<E>,
+    pub data: T,
+    pub error: E,
 }
 
 #[async_trait]
 impl Writer for AppError {
     async fn write(mut self, _req: &mut Request, _depot: &mut Depot, res: &mut Response) {
-        let response = AppResponse::<String, DataErr> {
+        let response = AppResponse::<Option<String>, DataErr> {
             data: None,
-            error: Some(DataErr {
-                message: self.to_string(),
-            }),
+            error: DataErr {
+                message: self.to_string(), //TODO: do not show system errors to the user
+                status: 500,
+            },
         };
 
-        // res.status_code(StatusCode::INTERNAL_SERVER_ERROR);
+        res.status_code(StatusCode::INTERNAL_SERVER_ERROR);
         res.render(Json(response));
     }
 }

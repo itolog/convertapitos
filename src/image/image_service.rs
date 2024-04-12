@@ -1,5 +1,7 @@
 use crate::image::types::ImageResponse;
-use crate::image::utils::{get_save_file_path, get_upload_folder_path, match_ext, PathMode};
+use crate::image::utils::{
+    get_save_file_path, get_upload_folder_path, match_ext, validate_file, PathMode,
+};
 use crate::types::{AppResponse, AppResult, DataErr};
 
 use image::imageops::FilterType;
@@ -21,28 +23,42 @@ pub async fn convert_image(req: &mut Request, res: &mut Response) -> AppResult<(
     );
 
     if let Some(file) = image_file {
-        let upload_folder = get_upload_folder_path(PathMode::Upload);
+        let is_file_valid = validate_file(file);
 
-        create_dir_all(Path::new(&upload_folder)).await?;
+        if is_file_valid {
+            let upload_folder = get_upload_folder_path(PathMode::Upload);
 
-        let (file_name, _ext) = file.name().unwrap().split_once('.').unwrap();
-        let (save_file_path, image_link) = get_save_file_path(&convert_to.to_lowercase());
+            create_dir_all(Path::new(&upload_folder)).await?;
 
-        let mut input_image: DynamicImage = ImageReader::open(Path::new(file.path()))?.decode()?;
+            let (save_file_path, image_link, file_name) =
+                get_save_file_path(&convert_to.to_lowercase());
 
-        if convert_to == "ico" {
-            input_image = input_image.resize(256, 256, FilterType::Nearest);
+            let mut input_image: DynamicImage =
+                ImageReader::open(Path::new(file.path()))?.decode()?;
+
+            if convert_to == "ico" {
+                input_image = input_image.resize(256, 256, FilterType::Nearest);
+            }
+
+            input_image.save_with_format(Path::new(&save_file_path), match_ext(&convert_to))?;
+
+            res.render(Json(AppResponse::<ImageResponse, Option<DataErr>> {
+                data: ImageResponse {
+                    file_name,
+                    image_link,
+                },
+                error: None,
+            }));
+        } else {
+            res.status_code(StatusCode::BAD_REQUEST);
+            res.render(Json(AppResponse::<Option<ImageResponse>, DataErr> {
+                data: None,
+                error: DataErr {
+                    message: "Incorrect file".to_string(),
+                    status: 400,
+                },
+            }));
         }
-
-        input_image.save_with_format(Path::new(&save_file_path), match_ext(&convert_to))?;
-
-        res.render(Json(AppResponse::<ImageResponse, Option<DataErr>> {
-            data: Some(ImageResponse {
-                file_name: format!("{}.{}", file_name, convert_to),
-                image_link,
-            }),
-            error: None,
-        }));
     }
 
     Ok(())
