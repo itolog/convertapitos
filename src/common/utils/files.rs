@@ -6,7 +6,7 @@ use salvo::http::form::FilePart;
 const UPLOADS_FOLDER_PATH: &str = "public/uploads";
 const RESPONSE_FOLDER_PATH: &str = "uploads";
 
-pub fn match_ext(extension: &str) -> ImageFormat {
+pub fn match_image_ext(extension: &str) -> ImageFormat {
     match extension {
         "avif" => ImageFormat::Avif,
         "bmp" => ImageFormat::Bmp,
@@ -53,7 +53,7 @@ pub fn get_save_file_path(ext: &String) -> (String, String, String) {
 
     let now = Local::now();
     let file_name = format!(
-        "{:02}-{:02}-{:02}_{}_image.{}",
+        "{:02}-{:02}-{:02}_{}_file.{}",
         now.hour(),
         now.minute(),
         now.second(),
@@ -63,16 +63,16 @@ pub fn get_save_file_path(ext: &String) -> (String, String, String) {
 
     let save_file_path = format!("{}/{}", get_upload_folder_path(PathMode::Upload), file_name);
 
-    let image_link = format!(
+    let file_link = format!(
         "{}/{}",
         get_upload_folder_path(PathMode::Response),
         file_name
     );
 
-    (save_file_path, image_link, file_name)
+    (save_file_path, file_link, file_name)
 }
 
-pub fn validate_file(file: &FilePart) -> bool {
+pub fn validate_image_file(file: &FilePart) -> bool {
     let valid_types = [
         String::from("image/avif"),
         String::from("image/bmp"),

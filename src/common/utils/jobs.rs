@@ -1,4 +1,4 @@
-use crate::image::utils::{get_upload_folder_path, PathMode};
+use crate::common::utils::files::{get_upload_folder_path, PathMode};
 use crate::types::AppError;
 use std::path::Path;
 use std::time::Duration;

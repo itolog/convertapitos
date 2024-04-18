@@ -5,14 +5,17 @@ use salvo::http::Method;
 use salvo::logging::Logger;
 use salvo::prelude::*;
 use salvo::serve_static::StaticDir;
-
+// TYPES
+mod types;
 // COMMON
 mod common;
 //  IMAGE
 mod image;
-mod types;
+// TEXT
+mod text;
 
 use crate::image::image_controller::image_controller;
+use crate::text::text_controller::text_controller;
 
 #[tokio::main]
 async fn main() {
@@ -38,7 +41,11 @@ async fn main() {
                     .auto_list(true),
             ),
         )
-        .push(Router::with_path("api/v1").push(image_controller()));
+        .push(
+            Router::with_path("api/v1")
+                .push(image_controller())
+                .push(text_controller()),
+        );
 
     let service = Service::new(router).hoop(Logger::new()).hoop(cors);
 

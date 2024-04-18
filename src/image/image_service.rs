@@ -1,9 +1,10 @@
 use crate::image::types::ImageResponse;
-use crate::image::utils::{
-    get_save_file_path, get_upload_folder_path, match_ext, validate_file, PathMode,
-};
+
 use crate::types::{AppResponse, AppResult, DataErr};
 
+use crate::common::utils::files::{
+    get_save_file_path, get_upload_folder_path, match_image_ext, validate_image_file, PathMode,
+};
 use image::imageops::FilterType;
 use image::io::Reader as ImageReader;
 use image::DynamicImage;
@@ -23,7 +24,7 @@ pub async fn convert_image(req: &mut Request, res: &mut Response) -> AppResult<(
     );
 
     if let Some(file) = image_file {
-        let is_file_valid = validate_file(file);
+        let is_file_valid = validate_image_file(file);
 
         if is_file_valid {
             let upload_folder = get_upload_folder_path(PathMode::Upload);
@@ -40,7 +41,8 @@ pub async fn convert_image(req: &mut Request, res: &mut Response) -> AppResult<(
                 input_image = input_image.resize(256, 256, FilterType::Nearest);
             }
 
-            input_image.save_with_format(Path::new(&save_file_path), match_ext(&convert_to))?;
+            input_image
+                .save_with_format(Path::new(&save_file_path), match_image_ext(&convert_to))?;
 
             res.render(Json(AppResponse::<ImageResponse, Option<DataErr>> {
                 data: ImageResponse {
