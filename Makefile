@@ -21,4 +21,13 @@ build:
 build-r:
 	cargo build --release
 
+out:
+	cargo outdated
+
+audit:
+	cargo audit
+
+audit-fix:
+	cargo audit fix
+
 .DEFAULT_GOAL := dev
