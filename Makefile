@@ -3,6 +3,9 @@
 dev:
 	cargo watch -x run
 
+run:
+	cargo run
+
 prod:
 	docker compose up -d --build
 
