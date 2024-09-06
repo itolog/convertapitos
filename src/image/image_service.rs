@@ -1,12 +1,12 @@
-use crate::image::types::ImageResponse;
 use crate::image::utils::{
     get_save_file_path, get_upload_folder_path, match_ext, validate_file, PathMode,
 };
-use crate::types::{AppResponse, AppResult, DataErr};
 
+use crate::common::types::api_types::{AppResponse, DataErr, ImageResponse};
+use crate::common::types::app_types::AppResult;
 use image::imageops::FilterType;
-use image::io::Reader as ImageReader;
 use image::DynamicImage;
+use image::ImageReader;
 use salvo::prelude::*;
 use std::path::Path;
 use tokio::fs::create_dir_all;
@@ -42,7 +42,7 @@ pub async fn convert_image(req: &mut Request, res: &mut Response) -> AppResult<(
 
             input_image.save_with_format(Path::new(&save_file_path), match_ext(&convert_to))?;
 
-            res.render(Json(AppResponse::<ImageResponse, Option<DataErr>> {
+            res.render(Json(AppResponse::<ImageResponse> {
                 data: ImageResponse {
                     file_name,
                     image_link,
@@ -51,12 +51,12 @@ pub async fn convert_image(req: &mut Request, res: &mut Response) -> AppResult<(
             }));
         } else {
             res.status_code(StatusCode::BAD_REQUEST);
-            res.render(Json(AppResponse::<Option<ImageResponse>, DataErr> {
+            res.render(Json(AppResponse::<Option<ImageResponse>> {
                 data: None,
-                error: DataErr {
+                error: Option::from(DataErr {
                     message: "Incorrect file".to_string(),
                     status: 400,
-                },
+                }),
             }));
         }
     }

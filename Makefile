@@ -33,4 +33,7 @@ audit:
 audit-fix:
 	cargo audit fix
 
+gen-ts:
+	cargo test
+
 .DEFAULT_GOAL := dev

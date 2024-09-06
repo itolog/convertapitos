@@ -1,5 +1,5 @@
+use crate::common::types::app_types::AppError;
 use crate::image::utils::{get_upload_folder_path, PathMode};
-use crate::types::AppError;
 use std::path::Path;
 use std::time::Duration;
 use tokio::fs::remove_dir_all;
@@ -10,7 +10,7 @@ pub async fn upload_job() -> Result<(), JobSchedulerError> {
     // TODO: clear the folder once a day (00:00)
     sched
         .add(Job::new_repeated_async(
-            Duration::from_secs(3600),
+            Duration::from_secs(600),
             |_, _| {
                 Box::pin(async move {
                     clean_upload_dir()
@@ -32,7 +32,7 @@ async fn clean_upload_dir() -> Result<(), AppError> {
     while let Some(entry) = read_dir.next_entry().await? {
         let dir_path = entry.path().display().to_string();
         let current_dir = get_upload_folder_path(PathMode::Upload);
-        let is_dir = entry.metadata().await.unwrap().is_dir();
+        let is_dir = entry.metadata().await?.is_dir();
 
         if dir_path != current_dir && is_dir {
             remove_dir_all(entry.path())
