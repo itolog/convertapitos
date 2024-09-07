@@ -3,6 +3,9 @@
 dev:
 	cargo watch -x run
 
+run:
+	cargo run
+
 prod:
 	docker compose up -d --build
 
@@ -22,9 +25,12 @@ build-r:
 	cargo build --release
 
 out:
-	cargo outdated 
+	cargo outdated
 
 audit:
 	cargo audit
+
+audit-fix:
+	cargo audit fix
 
 .DEFAULT_GOAL := dev
