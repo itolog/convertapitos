@@ -20,4 +20,5 @@ Cargo.lock
 .env
 .env.development
 
-/public
+/public/uploads
+/bindings/

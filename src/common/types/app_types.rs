@@ -1,6 +1,7 @@
+use crate::common::types::api_types::{AppResponse, DataErr};
 use image::ImageError;
 use salvo::prelude::*;
-use serde::{Deserialize, Serialize};
+
 use std::string::FromUtf8Error;
 use thiserror::Error;
 use tokio::io;
@@ -18,27 +19,15 @@ pub enum AppError {
     JobSchedulerError(#[from] JobSchedulerError),
 }
 
-#[derive(Debug, Deserialize, Serialize)]
-pub struct DataErr {
-    pub message: String,
-    pub status: i16,
-}
-
-#[derive(Debug, Serialize)]
-pub struct AppResponse<T, E> {
-    pub data: T,
-    pub error: E,
-}
-
 #[async_trait]
 impl Writer for AppError {
     async fn write(mut self, _req: &mut Request, _depot: &mut Depot, res: &mut Response) {
-        let response = AppResponse::<Option<String>, DataErr> {
+        let response = AppResponse::<Option<String>> {
             data: None,
-            error: DataErr {
+            error: Option::from(DataErr {
                 message: self.to_string(), //TODO: do not show system errors to the user
                 status: 500,
-            },
+            }),
         };
 
         res.status_code(StatusCode::INTERNAL_SERVER_ERROR);
