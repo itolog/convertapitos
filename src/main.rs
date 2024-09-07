@@ -10,10 +10,11 @@ mod common;
 mod image;
 // TEXT
 mod text;
+mod types;
 
 use crate::image::image_controller::image_controller;
-use crate::types::types_controller::types_controller;
 use crate::text::text_controller::text_controller;
+use crate::types::types_controller::types_controller;
 
 #[tokio::main]
 async fn main() {
@@ -32,20 +33,18 @@ async fn main() {
         .into_handler();
 
     let router = Router::new()
-        .push(Router::new().path("api/v1").push(image_controller()))
-        .push(Router::new().path("api/v1").push(types_controller()))
+        .push(
+            Router::with_path("api/v1")
+                .push(image_controller())
+                .push(types_controller())
+                .push(text_controller()),
+        )
         .push(
             Router::new().path("<**path>").get(
                 StaticDir::new(["public"])
                     .defaults("index.html")
                     .auto_list(true),
             ),
-        );
-        )
-        .push(
-            Router::with_path("api/v1")
-                .push(image_controller())
-                .push(text_controller()),
         );
 
     let service = Service::new(router).hoop(Logger::new()).hoop(cors);
