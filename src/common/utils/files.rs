@@ -3,8 +3,8 @@ use image::ImageFormat;
 use rand::distributions::{Alphanumeric, DistString};
 use salvo::http::form::FilePart;
 
-const UPLOADS_FOLDER_PATH: &str = "public/uploads";
-const RESPONSE_FOLDER_PATH: &str = "uploads";
+pub const UPLOADS_FOLDER_PATH: &str = "public/uploads";
+pub const RESPONSE_FOLDER_PATH: &str = "uploads";
 
 pub fn match_image_ext(extension: &str) -> ImageFormat {
     match extension {

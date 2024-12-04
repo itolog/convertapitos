@@ -1,12 +1,16 @@
 use crate::common::types::app_types::AppError;
 
-use crate::common::utils::files::{get_upload_folder_path, PathMode};
+use crate::common::utils::files::{get_upload_folder_path, PathMode, UPLOADS_FOLDER_PATH};
 use std::path::Path;
 use std::sync::Arc;
-use tokio::fs::remove_dir_all;
+use tokio::fs::{create_dir_all, remove_dir_all};
 use tokio_cron_scheduler::{Job, JobScheduler, JobSchedulerError};
 
 pub async fn upload_job() -> Result<(), JobSchedulerError> {
+    create_dir_all(Path::new(UPLOADS_FOLDER_PATH))
+        .await
+        .expect("Error creating upload directory");
+
     let scheduler = JobScheduler::new().await?;
     let arc_scheduler = Arc::new(scheduler);
 
@@ -38,8 +42,7 @@ async fn clean_upload_dir() -> Result<(), AppError> {
         let dir_path = entry.path().display().to_string();
         let current_dir = get_upload_folder_path(PathMode::Upload);
         let is_dir = entry.metadata().await?.is_dir();
-        println!("dir_path {:?}", dir_path);
-        println!("current_dir {:?}", current_dir);
+
         if dir_path != current_dir && is_dir {
             remove_dir_all(entry.path())
                 .await
