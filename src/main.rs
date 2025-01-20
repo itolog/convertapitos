@@ -29,7 +29,7 @@ async fn main() {
 
     let cors = Cors::new()
         .allow_origin("*")
-        .allow_methods(vec![Method::GET, Method::POST, Method::DELETE])
+        .allow_methods(vec![Method::GET, Method::POST])
         .into_handler();
 
     let router = Router::new()

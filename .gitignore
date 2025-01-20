@@ -22,3 +22,5 @@ Cargo.lock
 
 /public/uploads
 /bindings/
+/.zed/
+.zed

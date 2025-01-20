@@ -7,18 +7,18 @@ edition = "2021"
 
 [dependencies]
 dotenv = "0.15.0"
-image = "0.25.2"
-salvo = { version = "0.74.2", features = ["logging", "cors", "serve-static"] }
+image = "0.25.5"
+salvo = { version = "0.76.0", features = ["logging", "cors", "serve-static"] }
 tokio = { version = "1", features = ["macros"] }
 tracing = "0.1"
 tracing-subscriber = "0.3"
-serde = { version = "1.0.2", features = ["derive"] }
-thiserror = "2.0.4"
-chrono = "0.4.38"
+serde = { version = "1.0.217", features = ["derive"] }
+thiserror = "2.0.11"
+chrono = "0.4.39"
 tokio-cron-scheduler = "0.13.0"
 rand = "0.8.5"
-ts-rs = "10.0.0"
+ts-rs = "10.1.0"
 tts_rust = "0.3.5"
 
 [dev-dependencies]
-cargo-watch = "8.5.2"
+cargo-watch = "8.5.3"
